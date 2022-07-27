@@ -531,7 +531,7 @@ def evaluateForPacketInfo(real_target, real_other, fake_target, fake_other, numb
     labels = [1] * len(real_target[0]) + [0] * len(real_other[0])
     X_train_0, X_test_0, X_train_1, X_test_1, X_train_2, X_test_2, X_train_3, X_test_3, X_train_4, X_test_4, X_train_5, X_test_5, X_train_6, X_test_6, y_train, y_test = train_test_split(np.array(features_0), np.array(features_1), np.array(features_2), np.array(features_3), np.array(features_4), np.array(features_5), np.array(features_6), np.array(labels), test_size = 0.33, random_state = 42)
     model = packetInfoModel(numberOfPacketFrames, numberOfSrcPorts, numberOfDstPorts)
-    model.fit([X_train_0, X_train_1, X_train_2, X_train_3, X_train_4, X_train_5, X_train_6], y_train, batch_size=32, epochs=10)
+    model.fit([X_train_0, X_train_1, X_train_2, X_train_3, X_train_4, X_train_5, X_train_6], y_train, batch_size=32, epochs=30)
     y_predicted = model.predict([X_test_0, X_test_1, X_test_2, X_test_3, X_test_4, X_test_5, X_test_6], verbose=0)[:, 0]
     y_predicted = [1 if x >= 0.5 else 0 for x in y_predicted]
     metrics_dict = {"accuracy": accuracy_score(y_test, y_predicted), "f1": f1_score(y_test, y_predicted)}
@@ -549,7 +549,7 @@ def evaluateForPacketInfo(real_target, real_other, fake_target, fake_other, numb
     fake_features_6 = np.concatenate((np.array(fake_target[6]), np.array(fake_other[6])), axis=0)
     y_test = np.array([1] * len(fake_target[0]) + [0] * len(fake_other[0]))
     model = packetInfoModel(numberOfPacketFrames, numberOfSrcPorts, numberOfDstPorts)
-    model.fit([features_0, features_1, features_2, features_3, features_4, features_5, features_6], y_train, batch_size=32, epochs=10)
+    model.fit([features_0, features_1, features_2, features_3, features_4, features_5, features_6], y_train, batch_size=32, epochs=30)
     y_predicted = model.predict([fake_features_0, fake_features_1, fake_features_2, fake_features_3, fake_features_4, fake_features_5, fake_features_6], verbose=0)[:, 0]
     y_predicted = [1 if x >= 0.5 else 0 for x in y_predicted]
     metrics_dict = {"accuracy": accuracy_score(y_test, y_predicted), "f1": f1_score(y_test, y_predicted)}
@@ -560,7 +560,7 @@ def evaluateForPacketInfo(real_target, real_other, fake_target, fake_other, numb
     y_train = np.array(([1] * len(fake_target[0])) + ([0] * len(fake_other[0])))
     y_test = np.array([1] * len(real_target[0]) + [0] * len(real_other[0]))
     model = packetInfoModel(numberOfPacketFrames, numberOfSrcPorts, numberOfDstPorts)
-    model.fit([fake_features_0, fake_features_1, fake_features_2, fake_features_3, fake_features_4, fake_features_5, fake_features_6], y_train, batch_size=32, epochs=10)
+    model.fit([fake_features_0, fake_features_1, fake_features_2, fake_features_3, fake_features_4, fake_features_5, fake_features_6], y_train, batch_size=32, epochs=30)
     y_predicted = model.predict([features_0, features_1, features_2, features_3, features_4, features_5, features_6], verbose=0)[:, 0]
     y_predicted = [1 if x >= 0.5 else 0 for x in y_predicted]
     metrics_dict = {"accuracy": accuracy_score(y_test, y_predicted), "f1": f1_score(y_test, y_predicted)}
@@ -596,7 +596,7 @@ def evaluateForSignatureFrequency(real_target, real_other, fake_target, fake_oth
     X_train, X_test, y_train, y_test = train_test_split(features, np.array(labels), test_size=0.33,
                                                         random_state=42)
     model = signature_frequency_model()
-    model.fit(X_train, y_train, batch_size=32, epochs=10)
+    model.fit(X_train, y_train, batch_size=32, epochs=30)
     y_predicted = model.predict(X_test, verbose=0)[:, 0]
     y_predicted = [1 if x >= 0.5 else 0 for x in y_predicted]
     metrics_dict = {"accuracy": accuracy_score(y_test, y_predicted), "f1": f1_score(y_test, y_predicted)}
@@ -607,7 +607,7 @@ def evaluateForSignatureFrequency(real_target, real_other, fake_target, fake_oth
     X_test = np.concatenate((np.array(fake_target), np.array(fake_other)), axis=0)
     y_test = np.array([1] * len(fake_target) + [0] * len(fake_other))
     model = signature_frequency_model()
-    model.fit(features, np.array(labels), batch_size=32, epochs=10)
+    model.fit(features, np.array(labels), batch_size=32, epochs=30)
     y_predicted = model.predict(X_test, verbose=0)[:, 0]
     y_predicted = [1 if x >= 0.5 else 0 for x in y_predicted]
     metrics_dict = {"accuracy": accuracy_score(y_test, y_predicted), "f1": f1_score(y_test, y_predicted)}
@@ -620,7 +620,7 @@ def evaluateForSignatureFrequency(real_target, real_other, fake_target, fake_oth
     X_test = np.concatenate((np.array(real_target), np.array(real_other)), axis=0)
     y_test = np.array([1] * len(real_target) + [0] * len(real_other))
     model = signature_frequency_model()
-    model.fit(X_train, y_train, batch_size=32, epochs=10)
+    model.fit(X_train, y_train, batch_size=32, epochs=30)
     y_predicted = model.predict(X_test, verbose=0)[:, 0]
     y_predicted = [1 if x >= 0.5 else 0 for x in y_predicted]
     metrics_dict = {"accuracy": accuracy_score(y_test, y_predicted), "f1": f1_score(y_test, y_predicted)}
@@ -633,7 +633,7 @@ def evaluateForSignatureFrequency(real_target, real_other, fake_target, fake_oth
     X_train, X_test, y_train, y_test = train_test_split(features, np.array(labels), test_size=0.33,
                                                         random_state=42)
     model = signature_frequency_model()
-    model.fit(X_train, y_train, batch_size=32, epochs=10)
+    model.fit(X_train, y_train, batch_size=32, epochs=30)
     y_predicted = model.predict(X_test, verbose=0)[:, 0]
     y_predicted = [1 if x >= 0.5 else 0 for x in y_predicted]
     metrics_dict = {"accuracy": accuracy_score(y_test, y_predicted), "f1": f1_score(y_test, y_predicted)}
