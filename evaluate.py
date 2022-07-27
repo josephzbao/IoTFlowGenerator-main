@@ -806,7 +806,7 @@ all_results = []
 for duration_cluster_size in duration_cluster_sizes:
     for n_embedding in n_embeddings:
         for embedding_dim in embedding_dims:
-            packetInfoResults, trafficRateResults, signatureFrequencyResults = evaluate_directory("/Users/jbao/vqvae/saved_models", str(duration_cluster_size), str(n_embedding), str(embedding_dim))
+            packetInfoResults, trafficRateResults, signatureFrequencyResults = evaluate_directory("/home/joseph/vqvae/saved_models", str(duration_cluster_size), str(n_embedding), str(embedding_dim))
             all_results.append((packetInfoResults, duration_cluster_size, n_embedding, embedding_dim))
 
 max_result_per_device = dict()
