@@ -31,6 +31,7 @@ def evaluate_directory(directory, duration_cluster_size, n_embeddings, embedding
     all_devices_all_fake = dict()
     all_devices_all_signatures = dict()
     for path in paths:
+        print(path)
         directoryStr = str(path[len(directory) + 1:])
         with open(path + "/" + duration_cluster_size + "/" + n_embeddings + "/" + embedding_dim + "/fake_device_features.pkl", mode='rb') as pklfile:
             all_devices_all_fake[directoryStr] = pickle.load(pklfile)
@@ -42,14 +43,14 @@ def evaluate_directory(directory, duration_cluster_size, n_embeddings, embedding
             all_devices_all_signatures[directoryStr] = pickle.load(pklfile)
             pklfile.close()
     packetInfoResults, trafficRateResults, signatureFrequencyResults = evaluate_all_devices(all_devices_all_real, all_devices_all_fake, all_devices_all_signatures)
-    os.makedirs("/Users/jbao/vqvae/results/" + duration_cluster_size + "/" + n_embeddings + "/" + embedding_dim, exist_ok=True)
-    with open("/Users/jbao/vqvae/results/" + duration_cluster_size + "/" + n_embeddings + "/" + embedding_dim + "/packetInfoResults.pkl", mode='wb+') as pklfile:
+    os.makedirs("/home/joseph/vqvae/results/" + duration_cluster_size + "/" + n_embeddings + "/" + embedding_dim, exist_ok=True)
+    with open("/home/joseph/vqvae/results/" + duration_cluster_size + "/" + n_embeddings + "/" + embedding_dim + "/packetInfoResults.pkl", mode='wb+') as pklfile:
         pickle.dump(packetInfoResults, pklfile)
         pklfile.close()
-    with open("/Users/jbao/vqvae/results/" + duration_cluster_size + "/" + n_embeddings + "/" + embedding_dim + "/trafficRateResults.pkl", mode='wb+') as pklfile:
+    with open("/home/joseph/vqvae/results/" + duration_cluster_size + "/" + n_embeddings + "/" + embedding_dim + "/trafficRateResults.pkl", mode='wb+') as pklfile:
         pickle.dump(trafficRateResults, pklfile)
         pklfile.close()
-    with open("/Users/jbao/vqvae/results/" + duration_cluster_size + "/" + n_embeddings + "/" + embedding_dim + "/signatureFrequencyResults.pkl", mode='wb+') as pklfile:
+    with open("/home/joseph/vqvae/results/" + duration_cluster_size + "/" + n_embeddings + "/" + embedding_dim + "/signatureFrequencyResults.pkl", mode='wb+') as pklfile:
         pickle.dump(signatureFrequencyResults, pklfile)
         pklfile.close()
     return packetInfoResults, trafficRateResults, signatureFrequencyResults
@@ -68,8 +69,6 @@ def evaluate_for_device(device, all_devices_all_real, all_devices_all_fake, sign
     for key, value in all_devices_all_real.items():
         trafficFlowFeaturesWithNoisyFiltered = list(map(filterNoisy, value))
         frameLengthsAndDirection = extractPacketFrameLengthsWithDirection(trafficFlowFeaturesWithNoisyFiltered)
-        print("real")
-        print(frameLengthsAndDirection)
         if len(np.array(frameLengthsAndDirection).flatten()) == 0 or not any(frameLengthsAndDirection):
             all_real_signature_frequency[key] = len(value) * [[0] * total_signatures]
         else:
@@ -78,8 +77,6 @@ def evaluate_for_device(device, all_devices_all_real, all_devices_all_fake, sign
     for key, value in all_devices_all_fake.items():
         trafficFlowFeaturesWithNoisyFiltered = list(map(filterNoisy, value))
         frameLengthsAndDirection = extractPacketFrameLengthsWithDirection(trafficFlowFeaturesWithNoisyFiltered)
-        print("fake")
-        print(frameLengthsAndDirection)
         if len(np.array(frameLengthsAndDirection).flatten()) == 0 or not any(frameLengthsAndDirection):
             all_fake_signature_frequency[key] = len(value) * [[0] * total_signatures]
         else:
@@ -106,6 +103,10 @@ def evaluate(all_real, all_fake):
     frame_length_to_token = getPacketFrameLengthToToken(all_real, all_fake)
     src_port_to_token = getSrcPortToToken(all_real, all_fake)
     dst_port_to_token = getDstPortToToken(all_real, all_fake)
+    print("start")
+    print(frame_length_to_token)
+    print(src_port_to_token)
+    print(dst_port_to_token)
     all_real_packet_info = dict()
     all_real_traffic_rate = dict()
     all_fake_packet_info = dict()
@@ -250,6 +251,7 @@ def getPacketFrameLengthToToken(all_real, all_fake):
     counter = 0
     for token in set(all_packet_frame_lengths):
         frameLengthToToken[token] = counter
+        counter += 1
     return frameLengthToToken
 
 def getSrcPortToToken(all_real, all_fake):
@@ -266,6 +268,7 @@ def getSrcPortToToken(all_real, all_fake):
     counter = 0
     for token in set(all_src_ports):
         srcPortToToken[token] = counter
+        counter += 1
     return srcPortToToken
 
 def getDstPortToToken(all_real, all_fake):
@@ -282,6 +285,7 @@ def getDstPortToToken(all_real, all_fake):
     counter = 0
     for token in set(all_dst_ports):
         dstPortToToken[token] = counter
+        counter += 1
     return dstPortToToken
 
 def group_then_convert(interval, packet_tuples):
@@ -530,6 +534,9 @@ def evaluateForPacketInfo(real_target, real_other, fake_target, fake_other, numb
     features_6 = np.concatenate((np.array(real_target[6]), np.array(real_other[6])), axis=0)
     labels = [1] * len(real_target[0]) + [0] * len(real_other[0])
     X_train_0, X_test_0, X_train_1, X_test_1, X_train_2, X_test_2, X_train_3, X_test_3, X_train_4, X_test_4, X_train_5, X_test_5, X_train_6, X_test_6, y_train, y_test = train_test_split(np.array(features_0), np.array(features_1), np.array(features_2), np.array(features_3), np.array(features_4), np.array(features_5), np.array(features_6), np.array(labels), test_size = 0.33, random_state = 42)
+    print(numberOfPacketFrames)
+    print(numberOfSrcPorts)
+    print(numberOfDstPorts)
     model = packetInfoModel(numberOfPacketFrames, numberOfSrcPorts, numberOfDstPorts)
     model.fit([X_train_0, X_train_1, X_train_2, X_train_3, X_train_4, X_train_5, X_train_6], y_train, batch_size=32, epochs=30)
     y_predicted = model.predict([X_test_0, X_test_1, X_test_2, X_test_3, X_test_4, X_test_5, X_test_6], verbose=0)[:, 0]
